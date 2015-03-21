@@ -24,9 +24,11 @@ import edu.wpi.first.wpilibj.VictorSP;
 //import edu.wpi.first.wpilibj.Servo;
 
 public class Robot extends IterativeRobot {
-	
+	//This note is a test
 double bias = 0;
 	
+boolean done = false;
+
 	double grabR = 102;
 	double grabL = -96;
 	
@@ -77,7 +79,7 @@ double bias = 0;
 
 	boolean camera = true;
 	boolean squaredInputs = false;
-	double max_speed = 2500;
+	double max_speed = 2600;
 //double max_speed = 2700;
 	// config section end
 /*
@@ -147,6 +149,7 @@ double bias = 0;
 	double rightMotorSpeed;
 
 	public void robotInit() {
+		
 if(camera){
 		server = CameraServer.getInstance();
 		server.setQuality(50);
@@ -276,15 +279,15 @@ armControlL.setSetpoint(0);
 		// controlR.setSetpoint(300);
 		//delayTimer.start();
 */
-		armControlL.setSetpoint(-123);
-		time.delay(0.15);
-		armControlR.setSetpoint(128);
 		
+		//nCodeR.reset();
+		//nCodeL.reset();
 
 		
 		//autoloopR.setSetpoint(-2500);
 		//autoloopL.setSetpoint(2500);
-
+controlL.disable();
+controlR.disable();
 	}
 
 	/**
@@ -309,6 +312,28 @@ SmartDashboard.putNumber("LeftArm", armCodeL.get());
 		SmartDashboard.putNumber("LifterAccuracy2",
 				((lifterPID.getSetpoint() - lifterPot.getVoltage()) / lifterPot
 						.getVoltage()) * 100);
+		
+		if((Math.abs(nCodeR.get()) < 1500 &&  Math.abs(nCodeL.get()) < 1500) && ! panel.getRawButton(3)){
+			motorR.set(0.5);
+			motorL.set(-0.5);
+		} else {
+			motorR.set(0);
+			motorL.set(0);
+			done = true;
+		}
+		SmartDashboard.putNumber("nCode 234R", nCodeR.get());
+		SmartDashboard.putNumber("ControlL setpoint 345", controlL.getSetpoint());
+		SmartDashboard.putNumber("ControlR setpoint 567", controlR.getSetpoint());
+		SmartDashboard.putNumber("nCodeL 57", nCodeL.get());
+		SmartDashboard.putNumber(" MotorR 9786", motorR.get());
+		SmartDashboard.putNumber("MotorL 567 ", motorL.get());
+		SmartDashboard.putBoolean("done? ", done);
+		if(done){
+			armControlL.setSetpoint(-123);
+			time.delay(0.15);
+			armControlR.setSetpoint(128);
+			
+		}
 
 	}
 
@@ -331,6 +356,21 @@ SmartDashboard.putNumber("LeftArm", armCodeL.get());
 	 * This function is called periodically during operator control
 	 */
 	public void teleopPeriodic() {
+		/*
+		if(stick.getRawButton(4)){
+			controlL.disable();
+			controlR.disable();
+			
+			motorR.set(0.5);
+			motorL.set(0.5);
+		} else if (stick.getRawButton(5)) {
+			control
+		} else {
+			controlL.enable();
+			controlR.enable();
+			
+		}*/
+		
 		/*
 		 * 
 		 * SmartDashboard.putNumber("Left Encoder Rate", nCodeL.getRate());
@@ -414,7 +454,8 @@ SmartDashboard.putNumber("left encoder Value", nCodeL.get());
 
 		
 		
-		
+	//2.791
+
 		
 		moveValue = stick.getY();
 		rotateValue = stick.getX();
@@ -422,10 +463,15 @@ SmartDashboard.putNumber("left encoder Value", nCodeL.get());
 		moveValue = SuperUtils.limit(moveValue);
 		rotateValue = SuperUtils.limit(rotateValue);
 
-		if (panel.getRawButton(6) || auxStick.getRawButton(1)) {
+		if (panel.getRawButton(6)) {
 			lifterPID.setSetpoint(3.68);
 			//3.6
 			lifting = true;
+			
+		} else if(panel.getRawButton(5)){
+			lifterPID.setSetpoint(2.63);
+			lifting = false;
+			
 		} else if (panel.getRawButton(1)){
 			lifterPID.setSetpoint(1.902);
 			//1.95
@@ -453,9 +499,13 @@ SmartDashboard.putNumber("left encoder Value", nCodeL.get());
 		// lifterPID.setSetpoint((Math.abs(auxStick.getZ())*2.425)+2.4);
 		// lifter.set(auxStick.getX());
 
-		if(panel.getRawButton(11) || lifting == true){
+		if(panel.getRawButton(11)){
 			pullerR.set(-1+((auxStick.getThrottle()+1)/2));
 			pullerL.set(1-((auxStick.getThrottle()+1)/2));
+		} else if (lifting == true) {
+			pullerR.set(-1);
+			pullerL.set(1);
+			
 		} else if (panel.getRawButton(8)) {
 			pullerR.set((1-((auxStick.getThrottle()+1)/2)));
 			pullerL.set(-1+((auxStick.getThrottle()+1)/2));
@@ -520,6 +570,16 @@ SmartDashboard.putNumber("left encoder Value", nCodeL.get());
 		    controlL.setSetpoint(leftMotorSpeed * max_speed);
 		    controlR.setSetpoint(rightMotorSpeed * -max_speed);
 
+		} else if (stick.getRawButton(3)) {
+			controlL.setSetpoint(leftMotorSpeed * 250);
+		    controlR.setSetpoint(rightMotorSpeed * -250);
+			
+		} else if (stick.getRawButton(5)) {
+			controlL.setSetpoint(50);
+			controlR.setSetpoint(50);
+		} else if (stick.getRawButton(4)) {
+			controlL.setSetpoint(-50);
+			controlR.setSetpoint(-50);
 		} else {
 			// squaredInputs = false;
 			controlL.setSetpoint(leftMotorSpeed * max_speed);
