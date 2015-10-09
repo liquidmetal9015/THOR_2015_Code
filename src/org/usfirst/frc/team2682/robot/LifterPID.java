@@ -48,7 +48,7 @@ public class LifterPID implements LiveWindowSendable {
     
     
     
-    double toplimit = 3.622;
+    double toplimit = 3.9;
     double bottomlimit = 1;
     
     DigitalInput botLimSwitch;
